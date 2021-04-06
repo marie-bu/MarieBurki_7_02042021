@@ -1,0 +1,21 @@
+.search-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 20px;
+}
+
+.tag {
+    position: relative;
+    display: inline-block;
+    padding: 8px 45px 8px 18px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    i {
+        position: absolute;
+        top: 50%; right: 18px;
+        margin-top: -0.6rem;
+        font-size: 1.2rem;
+        padding-left: 10px;
+        cursor: pointer;
+    }
+}

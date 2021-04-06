@@ -1,0 +1,74 @@
+.search-lists {
+    display: flex;
+    gap: 0 20px;
+}
+
+.list {
+    position: relative;
+    .show {
+        position: relative;
+        border: none;
+        width: 170px;
+        height: 70px;
+        border-radius: 5px;
+        text-align: left;
+        padding-left: 23px;
+        cursor: text;
+        &-ingredients {
+            background-color: $color-ingredients;
+        }
+        &-appareil {
+            background-color: $color-appareils;
+        }
+        &-ustensiles {
+            background-color: $color-ustensils;
+        }
+        i {
+            position: absolute;
+            top: 50%; right: 20px;
+            margin-top: -9px;
+            cursor: pointer;
+        }
+    }
+    .expanded {
+        display: none;
+        width: fit-content;
+        height: fit-content;
+        border-radius: 5px;
+        padding: 23px 40px 15px 23px;
+        &-ingredients {
+            background-color: $color-ingredients;
+        }
+        &-appareil {
+            background-color: $color-appareils;
+        }
+        &-ustensiles {
+            background-color: $color-ustensils;
+        }
+        &-close {
+            position: absolute;
+            top: 25px; right: 20px;
+            border: none;
+            background-color: inherit;
+        }
+        input {
+            background-color: inherit;
+        }
+    }
+    .listed {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 5px 70px;
+        max-width: 667px;
+        padding: 25px 0 15px 0;
+        background-color: inherit;
+        &-item {
+            width: 175px; 
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            cursor: pointer;
+        }
+    }
+}

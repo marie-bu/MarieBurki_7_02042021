@@ -1,0 +1,30 @@
+.search {
+    &-bar {
+        position: relative;
+        width: 100%;
+        height: 70px;
+        border-radius: 5px;
+        background-color: $color-lightgrey;
+    }
+    &-input {
+        width: inherit;
+        border: none;
+        outline: none;
+        padding: 22px;
+        padding-right: 52px;
+        background-color: $color-lightgrey;
+        &::placeholder {
+            color:rgba($color:black, $alpha: 0.4);
+        }
+    }
+    &-submit {
+        position: absolute;
+        right: 17px; top: 19px;
+        border: none;
+        background-color: $color-lightgrey;
+        cursor: pointer;
+        i {
+            font-size: 1.9rem;
+        }
+    }
+}
