@@ -18,13 +18,21 @@ const listUstensile = document.querySelector(".listed-ustensiles");
 // preventDefault form
 function prevent(event){
     event.preventDefault()
-    searchBarInput.value = ""
 };
 
 // change units display
 function unitDisplay(el){
     if (el.unit == "cuillères à soupe"){
         el.unit = " cuillères"
+    }
+    if (el.unit == "cuillère à soupe"){
+        el.unit = " cuillère"
+    }
+    if (el.unit == "cuillères à café"){
+        el.unit = " cuillères"
+    }
+    if (el.unit == "cuillère à café"){
+        el.unit = " cuillère"
     }
     if (el.unit == "grammes"){
         el.unit = "g"
@@ -72,21 +80,19 @@ const ingSet = new Set;
 const appSet = new Set;
 const ustSet = new Set;
 
-function populateSets() {
-    for (recipe of recipes) {
-        for (ingredient of recipe.ingredients){
-            ingSet.add(ingredient.ingredient);
-        }
-        for (ust of recipe.ustensils){
-            ustSet.add(ust)
-        }
-        appSet.add(recipe.appliance) 
+recipes.forEach((recipe)=>{
+    for (ingredient of recipe.ingredients){
+        ingSet.add(ingredient.ingredient);
     }
-}
-populateSets();
+    for (ust of recipe.ustensils){
+        ustSet.add(ust)
+    }
+    appSet.add(recipe.appliance)
+})
 
 // populate listboxes
 function appendDataLists(set, container) {
+    container.innerHTML = "";
     set.forEach((element)=>{
         container.innerHTML += `<li class="listed-item">`+element+`</li>`;
     })
