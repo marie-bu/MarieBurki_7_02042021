@@ -2,6 +2,9 @@
 
 const searchBarInput = document.querySelector(".search-input");
 const searchTags = document.querySelector(".search-tags");
+const searchIngredients = document.querySelector("#search-ingredients");
+const searchAppareil = document.querySelector("#search-appareil");
+const searchUstensiles = document.querySelector("#search-ustensiles");
 
 const recipesGrid = document.querySelector(".recipes-grid");
 
