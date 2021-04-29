@@ -1,6 +1,11 @@
-.search-lists {
-    display: flex;
-    gap: 0 20px;
+.search {
+    &-narrow {
+        position: absolute;
+    }
+    &-lists {
+        display: flex;
+        gap: 0 20px;
+    }
 }
 
 .list {

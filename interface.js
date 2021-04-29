@@ -18,6 +18,8 @@ const expUstensile = document.querySelector(".expanded-ustensiles");
 const showUstensile = document.querySelector(".show-ustensiles");
 const listUstensile = document.querySelector(".listed-ustensiles");
 
+const alertMessage = document.querySelector(".alert");
+
 // preventDefault form
 function prevent(event){
     event.preventDefault()
@@ -49,26 +51,29 @@ function unitDisplay(el){
 }
 
 // populate recipes cards
-function appendDataRecipes() {
-    for (i=0; i<recipes.length; i++) {
+function appendDataRecipes(array) {
+    recipesGrid.innerHTML = "";
+    for (i=0; i<array.length; i++) {
         recipesGrid.innerHTML += `
         <li class="recipe">
             <div class="recipe-img"></div>
             <div class="recipe-content">
                 <div class="recipe-header">
-                    <h2 class="recipe-title">`+recipes[i].name+`</h2>
-                    <div class="recipe-time"><i class="far fa-clock"></i> `+recipes[i].time+` min</div>
+                    <h2 class="recipe-title">`+array[i].name+`</h2>
+                    <div class="recipe-time"><i class="far fa-clock"></i> `+array[i].time+` min</div>
                 </div>
                 <div class="recipe-details">
                     <p class="recipe-ingredients"></p>
-                    <p class="recipe-directions">`+recipes[i].description+`</p>
+                    <p class="recipe-directions">`+array[i].description+`</p>
+                    <p class="recipe-hidden">`+array[i].appliance+`</p>
+                    <p class="recipe-hidden">`+array[i].ustensils+`</p>
                 </div>
             </div>
         </li>`
 
         const recipeIngredients = document.querySelectorAll(".recipe-ingredients");
 
-        Array.from(recipes[i].ingredients).forEach((ingredient)=>{
+        Array.from(array[i].ingredients).forEach((ingredient)=>{
             unitDisplay(ingredient);
             recipeIngredients[i].innerHTML +=
                 `<span class="item-ingredient">`+ingredient.ingredient+`:</span>
@@ -76,33 +81,35 @@ function appendDataRecipes() {
         })
     }
 };
-appendDataRecipes();
+appendDataRecipes(recipes);
 
 // create set of data for listboxes
-const ingSet = new Set;
-const appSet = new Set;
-const ustSet = new Set;
-
-recipes.forEach((recipe)=>{
-    for (ingredient of recipe.ingredients){
-        ingSet.add(ingredient.ingredient);
-    }
-    for (ust of recipe.ustensils){
-        ustSet.add(ust)
-    }
-    appSet.add(recipe.appliance)
-})
+let ingSet = new Set;
+let appSet = new Set;
+let ustSet = new Set;
 
 // populate listboxes
-function appendDataLists(set, container) {
+function appendDataLists(array, set, container) {
     container.innerHTML = "";
-    set.forEach((element)=>{
+
+    array.forEach((recipe)=>{
+        for (ingredient of recipe.ingredients){
+            ingSet.add(ingredient.ingredient);
+        }
+        for (ust of recipe.ustensils){
+            ustSet.add(ust)
+        }
+        appSet.add(recipe.appliance)
+    })
+
+    set.forEach((element)=>{ 
         container.innerHTML += `<li class="listed-item">`+element+`</li>`;
     })
 };
-appendDataLists(ingSet, listIngredient);
-appendDataLists(appSet, listAppareil);
-appendDataLists(ustSet, listUstensile);
+
+appendDataLists(recipes, ingSet, listIngredient);
+appendDataLists(recipes, appSet, listAppareil);
+appendDataLists(recipes, ustSet, listUstensile);
 
 // open and close listboxes,
 function openListbox(list, button) {
@@ -116,8 +123,10 @@ function closeListbox(list, button) {
 }
 
 // create tag
-const listedItems = document.querySelectorAll(".listed-item"); 
-const closeBtns = [];
+let listedItems = [];
+let closeBtns = [];
+
+document.querySelectorAll(".listed-item").forEach(item=>listedItems.push(item));
 
 function AddRemoveTag(e) {
     const clickedElement = e.target.innerHTML ;
@@ -134,8 +143,8 @@ function AddRemoveTag(e) {
         closeBtn.addEventListener("click", (el)=>{
         el.target.parentNode.style.display = "none";
         })
-    })
-}
+    });
+};
 
 listedItems.forEach((item)=>{
     item.addEventListener("click", (e)=>{
