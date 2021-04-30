@@ -1,4 +1,4 @@
-// create arrays :
+// 1) create arrays :
 
 // relative to search inputs
 const ListboxSearchInputs = [];
@@ -7,50 +7,43 @@ ListboxSearchInputs.push(searchIngredients, searchAppareil, searchUstensiles);
 // relative to recipes
 let recipesToFilter = recipes;
 let recipesToKeep = [];
-let recipesToFilterAgain = [];
 
-// filter function for main search
+// relative to listboxes
+let itemsToFilter = [];
+let itemsToDisplay = [];
+let itemsToHide = [];
 
-// create basic filter functions for callbacks
-function filter (arrayToFilter, arrayToKeep, arrayToFilterOut, predicate) {
-    for (let i=0; i<arrayToFilter.length; i++) {
-        if (predicate(arrayToFilter[i])) {
-            arrayToKeep.push(arrayToFilter[i])
-        } else {
-            arrayToFilterOut.push(arrayToFilter[i])
-        }
-    }
-}
+// create an object to keep search results, to allow return when deleting letter(s) without filter recipes again
+const searchResults = {};
 
-function filterAgain (arrayToFilter, arrayToKeep, predicate) {
-    for (let i=0; i<arrayToFilter.length; i++) {
-        if (predicate(arrayToFilter[i])) {
-            arrayToKeep.push(arrayToFilter[i])
-        }
-    }
-}
+// 2) filter functions for main search
 
-// create functions for the main search bar
 function filterRecipes(searchEntry) {
-    // empty arrays to filter
+    // empty array to keep
     recipesToKeep = [];
-    recipesToFilterAgain = [];
 
-    // filter recipes through their description, then filter again through title, then through ingredients
-    filter (recipesToFilter, recipesToKeep, recipesToFilterAgain, (recipe) => recipe.description.toLowerCase().indexOf(searchEntry) != -1);
-    filterAgain (recipesToFilterAgain, recipesToKeep, (recipe) => recipe.name.toLowerCase().indexOf(searchEntry) != -1);
-    filterAgain (recipesToFilterAgain, recipesToKeep, (recipe) => recipe.ingredients.some(x => x.ingredient.toLowerCase().indexOf(searchEntry) != -1));
+    // filter through recipe description, title and ingredients
+    for (let i=0; i<recipesToFilter.length; i++) {
+        if (recipesToFilter[i].description.toLowerCase().indexOf(searchEntry) != -1
+            || recipesToFilter[i].name.toLowerCase().indexOf(searchEntry) != -1
+            || recipesToFilter[i].ingredients.some(x => x.ingredient.toLowerCase().indexOf(searchEntry) != -1)) {
+            recipesToKeep.push(recipesToFilter[i]);
+        }
+    }
 
-    // refresh the DOM and let the recipes to be filtered on next keyup to be ONLY the already filtered out recipes
+    // refresh the DOM
     appendDataRecipes(recipesToKeep);
+    // let the recipes to be filtered on next keyup to be ONLY the already filtered recipes we keep
     recipesToFilter = recipesToKeep;
-};
+    // keep track of search result, for when a character is deleted
+    searchResults[searchEntry] = recipesToKeep;
+}
 
 function filterListboxes() {
     // empty set for listbox
-    ingSet = new Set;
-    appSet = new Set;
-    ustSet = new Set;
+    ingSet = new Set();
+    appSet = new Set();
+    ustSet = new Set();
 
     // refresh the listbox content with the filtered recipes content
     appendDataLists(recipesToKeep, ingSet, listIngredient);
@@ -58,47 +51,90 @@ function filterListboxes() {
     appendDataLists(recipesToKeep, ustSet, listUstensile);
 }
 
+// to allow appendDataRecipes() to work when deleting a letter (otherwise, error, array undefined)
+let recipesToDisplay = [];
+
 searchBarInput.addEventListener("keyup", (input) => {
+
     let searchEntry = input.target.value.toLowerCase();
-    // pas de retour en arrière possible, si faute de frappe, il faut recharger la page
-    if (searchEntry.length >= 3) {
-        filterRecipesFirstTime(searchEntry)
-        filterListboxes()
+
+    switch(true) {
+        // if a character is entered & entry is at least 3 characters long
+        case searchEntry.length >= 3 && input.keyCode != 8 :
+            filterRecipes(searchEntry);
+            filterListboxes();
+            break;
+        // if a character is deleted & entry is at least 3 characters long
+        // problème, enregistrement des search entry pas toujours correct, crée erreur et n'affiche rien en DOM
+        case searchEntry.length >= 3 && input.keyCode == 8:
+            // display recipes according to search entry, with result kept from former search
+            recipesToKeep = searchResults[searchEntry];
+            appendDataRecipes(recipesToKeep);
+            filterListboxes();
+            // update necessary arrays for next keyup
+            recipesToFilter = recipesToKeep;
+            delete searchResults[searchEntry];
+            break;
+        // if a character is deleted & entry is shorter than 3 characters
+        case searchEntry.length < 3 && input.keyCode == 8:
+            appendDataRecipes(recipes);
+            filterListboxes();
+            // update necessary arrays for next keyup
+            recipesToFilter = recipes;
+            delete searchResults[searchEntry];
     }
 });
 
-// search fonction for listboxes
-// !!! à affiner, séparer pour chaque listbox
+// 3) filter fonctions for listboxes
 
-// arrays relative to listboxes
-let filteredBySearchBar = [];
-let filteredByListboxSearchBar = listedItems;
-
-function narrowListboxes(newArray, arrayToFilter) {
-    arrayToFilter.forEach((x) => {
-        if (!newArray.includes(x)) {
-            x.style.display = "none"
+function filterInOut (arrayToFilter, arrayToKeep, arrayToFilterOut, predicate) {
+    for (let i=0; i<arrayToFilter.length; i++) {
+        if (predicate(arrayToFilter[i])) {
+            arrayToKeep.push(arrayToFilter[i]);
         } else {
-            x.style.display = "block"
+            arrayToFilterOut.push(arrayToFilter[i]);
         }
-    })
+    }
+}
+
+function displayListbox() {
+    itemsToHide.forEach(item => item.style.display = "none");
+    itemsToDisplay.forEach(item => item.style.display = "block");
 };
 
 ListboxSearchInputs.forEach((element) => {
     element.addEventListener("keyup", (input) => {
-        let searchEntry = input.target.value.toLowerCase();
-        if (recipesToKeep.length === 0) {
-            filteredByListboxSearchBar = listedItems.filter(x => x.innerHTML.toLowerCase().indexOf(searchEntry) != -1);
-            narrowListboxes(filteredByListboxSearchBar, listedItems);
-        } else {
-            document.querySelectorAll(".listed-item").forEach(item => filteredBySearchBar.push(item))
-            filteredByListboxSearchBar = filteredBySearchBar.filter(x => x.innerHTML.toLowerCase().indexOf(searchEntry) != -1);
-            narrowListboxes(filteredByListboxSearchBar, filteredBySearchBar);
+        // declare search bar and search entry
+        let searchBar = input.target;
+        let searchEntry = searchBar.value.toLowerCase();
+
+        // empty arrays for filter functions
+        itemsToFilter = [];
+        itemsToDisplay = [];
+        itemsToHide = [];
+
+        // check which listbox is used, fill array to filter with the according elements, filter and refresh DOM
+        switch(true) {
+            case searchBar == searchIngredients:
+                searchIngredients.nextElementSibling.childNodes.forEach(item => itemsToFilter.push(item));
+                filterInOut (itemsToFilter, itemsToDisplay, itemsToHide, (item) => item.innerHTML.toLowerCase().indexOf(searchEntry) != -1);
+                displayListbox();
+                break;
+            case searchBar == searchAppareil:
+                searchAppareil.nextElementSibling.childNodes.forEach(item => itemsToFilter.push(item));
+                filterInOut (itemsToFilter, itemsToDisplay, itemsToHide, (item) => item.innerHTML.toLowerCase().indexOf(searchEntry) != -1);
+                displayListbox();
+                break;
+            case searchBar == searchUstensiles:
+                searchUstensiles.nextElementSibling.childNodes.forEach(item => itemsToFilter.push(item));
+                filterInOut (itemsToFilter, itemsToDisplay, itemsToHide, (item) => item.innerHTML.toLowerCase().indexOf(searchEntry) != -1);
+                displayListbox();
+                break;
         }
     })
 });
 
-// search function for tags
+// 3) search function for tags NOT FINISHED, DOES NOT WORK
 let filteredOutByTag = [];
 
 const conditionToMatch = {
