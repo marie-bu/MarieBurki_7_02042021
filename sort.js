@@ -76,6 +76,9 @@ searchBarInput.addEventListener("keyup", (input) => {
         appendDataLists(recipes, appSet, listAppareil);
         appendDataLists(recipes, ustSet, listUstensile);
     }
+    if (recipesToKeep.length === 0) {
+        alertMessage.style.display = "block";
+    }
 });
 
 // 3) filter fonctions for listboxes
