@@ -82,6 +82,10 @@ searchBarInput.addEventListener("keyup", (input) => {
             // update necessary arrays for next keyup
             recipesToFilter = recipes;
             delete searchResults[searchEntry];
+            break;
+        case recipesToKeep.length === 0 :
+            alertMessage.style.display = "block";
+            break;
     }
 });
 
