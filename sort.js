@@ -7,6 +7,7 @@ ListboxSearchInputs.push(searchIngredients, searchAppareil, searchUstensiles);
 // relative to recipes
 let recipesToFilter = recipes;
 let recipesToKeep = [];
+let recipesFilteredBySearchbar = [];
 
 // relative to listboxes
 let itemsToFilter = [];
@@ -35,8 +36,6 @@ function filterRecipes(searchEntry) {
     appendDataRecipes(recipesToKeep);
     // let the recipes to be filtered on next keyup to be ONLY the already filtered recipes we keep
     recipesToFilter = recipesToKeep;
-    // keep track of search result, for when a character is deleted
-    searchResults[searchEntry] = recipesToKeep;
 }
 
 function filterListboxes() {
@@ -45,47 +44,50 @@ function filterListboxes() {
     appSet = new Set();
     ustSet = new Set();
 
+    listedItems = [];
+
     // refresh the listbox content with the filtered recipes content
     appendDataLists(recipesToKeep, ingSet, listIngredient);
     appendDataLists(recipesToKeep, appSet, listAppareil);
     appendDataLists(recipesToKeep, ustSet, listUstensile);
 }
 
-// to allow appendDataRecipes() to work when deleting a letter (otherwise, error, array undefined)
-let recipesToDisplay = [];
-
 searchBarInput.addEventListener("keyup", (input) => {
 
     let searchEntry = input.target.value.toLowerCase();
 
-    switch(true) {
-        // if a character is entered & entry is at least 3 characters long
-        case searchEntry.length >= 3 && input.keyCode != 8 :
-            filterRecipes(searchEntry);
-            filterListboxes();
-            break;
-        // if a character is deleted & entry is at least 3 characters long
-        // problème, enregistrement des search entry pas toujours correct, crée erreur et n'affiche rien en DOM
-        case searchEntry.length >= 3 && input.keyCode == 8:
-            // display recipes according to search entry, with result kept from former search
+    // lauching search if user adds a character and input is at least 3 characters long
+    if (input.keyCode != 8 && searchEntry.length >= 3) {
+        filterRecipes(searchEntry);
+        appendDataRecipes(recipesToKeep);
+        filterListboxes();
+    }
+
+    // launching search when user deletes a character
+    if (input.keyCode == 8) {
+        // 1) check if input was saved in searchResults, use the savec array to display data
+        if (searchEntry in searchResults) {
             recipesToKeep = searchResults[searchEntry];
             appendDataRecipes(recipesToKeep);
             filterListboxes();
-            // update necessary arrays for next keyup
             recipesToFilter = recipesToKeep;
             delete searchResults[searchEntry];
-            break;
-        // if a character is deleted & entry is shorter than 3 characters
-        case searchEntry.length < 3 && input.keyCode == 8:
-            appendDataRecipes(recipes);
-            filterListboxes();
-            // update necessary arrays for next keyup
+        // 2) if it was not saved, filter all the recipes and display data
+        } else {
             recipesToFilter = recipes;
-            delete searchResults[searchEntry];
-            break;
-        case recipesToKeep.length === 0 :
-            alertMessage.style.display = "block";
-            break;
+            filterRecipes(searchEntry);
+            filterListboxes();
+        }
+    }
+
+    // Store recipes filtered by search bar, will be used on closing tag function
+    recipesFilteredBySearchbar = recipesToKeep;
+    // keep track of search result, for when a character is deleted
+    searchResults[searchEntry] = recipesToKeep;
+
+    // if there are no result, display alert message
+    if (recipesToFilter.length === 0) {
+        alertMessage.style.display = "block";
     }
 });
 
@@ -118,18 +120,18 @@ ListboxSearchInputs.forEach((element) => {
         itemsToHide = [];
 
         // check which listbox is used, fill array to filter with the according elements, filter and refresh DOM
-        switch(true) {
-            case searchBar == searchIngredients:
+        switch(searchBar) {
+            case searchIngredients:
                 searchIngredients.nextElementSibling.childNodes.forEach(item => itemsToFilter.push(item));
                 filterInOut (itemsToFilter, itemsToDisplay, itemsToHide, (item) => item.innerHTML.toLowerCase().indexOf(searchEntry) != -1);
                 displayListbox();
                 break;
-            case searchBar == searchAppareil:
+            case searchAppareil:
                 searchAppareil.nextElementSibling.childNodes.forEach(item => itemsToFilter.push(item));
                 filterInOut (itemsToFilter, itemsToDisplay, itemsToHide, (item) => item.innerHTML.toLowerCase().indexOf(searchEntry) != -1);
                 displayListbox();
                 break;
-            case searchBar == searchUstensiles:
+            case searchUstensiles:
                 searchUstensiles.nextElementSibling.childNodes.forEach(item => itemsToFilter.push(item));
                 filterInOut (itemsToFilter, itemsToDisplay, itemsToHide, (item) => item.innerHTML.toLowerCase().indexOf(searchEntry) != -1);
                 displayListbox();
@@ -138,53 +140,53 @@ ListboxSearchInputs.forEach((element) => {
     })
 });
 
-// 3) search function for tags NOT FINISHED, DOES NOT WORK
-let filteredOutByTag = [];
+// 4) Filter by tag (addEventListeners added on tag creation -> interface.js)
 
-const conditionToMatch = {
-    "BgColorIngredient": "rgb(50, 130, 247)",
-    "BgColorAppareil": "rgb(104, 217, 164)",
-    "BgColorUstensile": "rgb(237, 100, 84)"
-}
+// When a tag is added
 
-const filteredByTag = {
+function filterByTag(el) {
+    let itemContent = el.target.innerHTML.toLowerCase();
+    filterRecipes(itemContent);
+    filterListboxes();
+};
+
+// When a tag is removed
+
+function filterOnClosedTag(el) {
+    let activeTags = document.querySelectorAll(".active-tag");
     
-}
-
-window.addEventListener("click", (element)=>{
-    // display tag and filter function, display recipes and listboxes accordingly
-    if (element.target.className == "listed-item"){
-        if (recipesToFilter.length != recipes.length) {
-            AddRemoveTag(element)
+    // if no entry was made in main search bar
+    if (recipesFilteredBySearchbar.length === 0) {
+        // and if there are some active tag, filter all recipes with remaining tag(s)
+        if (activeTags.length > 0) {
+            recipesToFilter = recipes;
+            activeTags.forEach((tag)=> {
+                filterRecipes(tag.innerText.toLocaleLowerCase());
+                filterListboxes()
+            });
+        // but if no active tag, repopulate DOM with all recipes
+        } else {
+            appendDataRecipes(recipes);
+            appendDataLists(recipes, ingSet, listIngredient);
+            appendDataLists(recipes, appSet, listAppareil);
+            appendDataLists(recipes, ustSet, listUstensile);
         }
 
-        let activeTag = element.target.innerHTML.toLowerCase();
-        let activeTagNoSpace = activeTag.replace(/ /g, "");
-        recipesToKeep = [];
-
-        switch(true) {
-            case element.target.parentNode.className == "listed listed-ingredients" :
-                filterByTag(recipesToFilter, recipesToKeep, filteredOutByTag, (recipe) => recipe.ingredients.some(x => x.ingredient.toLowerCase().indexOf(activeTag) != -1));
-                break;
-            case element.target.parentNode.className == "listed listed-appareil" :
-                filterByTag(recipesToFilter, recipesToKeep, filteredOutByTag, (recipe) => recipe.appliance.toLowerCase().includes(activeTag))
-                break;
-            case element.target.parentNode.className == "listed listed-ustensiles" :
-                filterByTag(recipesToFilter, recipesToKeep, filteredOutByTag, (recipe) => recipe.ustensils.toLowerCase().includes(activeTag))
-                break;
+    // if there has been an entry search on main search bar
+    } else if (recipesFilteredBySearchbar.length > 0) {
+        // and if there are some active tag, filter the recipes filtered by search bar with remaining tag(s)
+        if (activeTags.length > 0) {
+            recipesToFilter = recipesFilteredBySearchbar;
+            activeTags.forEach((tag)=> {
+                filterRecipes(tag.innerText.toLowerCase());
+                filterListboxes()
+            });
+        // but if no active tag, repopulate DOM with recipes filtered by search bar
+        } else {
+            appendDataRecipes(recipesFilteredBySearchbar);
+            appendDataLists(recipesFilteredBySearchbar, ingSet, listIngredient);
+            appendDataLists(recipesFilteredBySearchbar, appSet, listAppareil);
+            appendDataLists(recipesFilteredBySearchbar, ustSet, listUstensile);
         }
-        recipesToFilter = recipesToKeep;
-        appendDataRecipes(recipesToKeep);
-        filterListboxes()
-        console.log(filteredByTag)
     }
-    // add data which was filtered out by tag
-    // fonctionne pas, créer array à chaque filtre par tag avec nom de l'activeTag
-    if (element.target.className == "far fa-times-circle"){
-        const closedTag = element.target.parentNode.toLowerCase();
-        const closedTagNoSpace = closedTag.replace(/ /g, "");
-        console.log(recipesToKeep)
-        console.log(closedTagNoSpace)
-        console.log(filteredByTag[closedTagNoSpace])
-    }
-});
+};
