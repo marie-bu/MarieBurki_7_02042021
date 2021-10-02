@@ -63,7 +63,7 @@ function appendDataRecipes(array) {
                     <div class="recipe-time"><i class="far fa-clock"></i> `+array[i].time+` min</div>
                 </div>
                 <div class="recipe-details">
-                    <p class="recipe-ingredients"></p>
+                    <ul class="recipe-ingredients"></ul>
                     <p class="recipe-directions">`+array[i].description+`</p>
                     <p class="recipe-hidden">`+array[i].appliance+`</p>
                     <p class="recipe-hidden">`+array[i].ustensils+`</p>
@@ -76,15 +76,10 @@ function appendDataRecipes(array) {
         Array.from(array[i].ingredients).forEach((ingredient)=>{
             unitDisplay(ingredient);
             recipeIngredients[i].innerHTML +=
-                `<span class="item-ingredient">`+ingredient.ingredient+`:</span>
-                <span class="item-quantity"> `+ingredient.quantity+ingredient.unit+`</span>`
+            '</li><span class="item-ingredient">'+ingredient.ingredient+' :</span><span class="item-quantity"> '+ingredient.quantity+ingredient.unit+'</span><li>'
         })
     }
 };
-<<<<<<< HEAD:interface.js
-=======
-
->>>>>>> sortTestOne:functions.js
 appendDataRecipes(recipes);
 
 // create set of data for listboxes
@@ -92,12 +87,9 @@ let ingSet = new Set;
 let appSet = new Set;
 let ustSet = new Set;
 
-<<<<<<< HEAD:interface.js
-=======
 // create array for tag creation on click (below)
 let listedItems = [];
 
->>>>>>> sortTestOne:functions.js
 // populate listboxes
 function appendDataLists(array, set, container) {
     container.innerHTML = "";
@@ -110,13 +102,6 @@ function appendDataLists(array, set, container) {
             ustSet.add(ust)
         }
         appSet.add(recipe.appliance)
-<<<<<<< HEAD:interface.js
-    })
-
-    set.forEach((element)=>{ 
-        container.innerHTML += `<li class="listed-item">`+element+`</li>`;
-    })
-=======
     });
 
     set.forEach((element)=>{ 
@@ -129,7 +114,6 @@ function appendDataLists(array, set, container) {
             filterByTag(el);
         });   
     });
->>>>>>> sortTestOne:functions.js
 };
 
 appendDataLists(recipes, ingSet, listIngredient);
@@ -148,13 +132,6 @@ function closeListbox(list, button) {
 }
 
 // create tag
-<<<<<<< HEAD:interface.js
-let listedItems = [];
-let closeBtns = [];
-
-document.querySelectorAll(".listed-item").forEach(item=>listedItems.push(item));
-=======
->>>>>>> sortTestOne:functions.js
 
 function createTag(el) {
     const clickedElement = el.target.innerHTML ;
@@ -166,25 +143,9 @@ function createTag(el) {
     tag.innerHTML= clickedElement+`<i class="far fa-times-circle"></i>`;
     searchTags.appendChild(tag);
     // add close tag onclick
-<<<<<<< HEAD:interface.js
-    closeBtns.push(tag);
-    closeBtns.forEach((closeBtn)=>{
-        closeBtn.addEventListener("click", (el)=>{
-        el.target.parentNode.style.display = "none";
-        })
-    });
-};
-
-listedItems.forEach((item)=>{
-    item.addEventListener("click", (e)=>{
-        AddRemoveTag(e)
-    })
-})
-=======
     let closeBtn = tag.querySelector("i");
     closeBtn.addEventListener("click", (el)=> {
         closeBtn.parentNode.classList.remove("active-tag");
         filterOnClosedTag(el);
     });
 };
->>>>>>> sortTestOne:functions.js
