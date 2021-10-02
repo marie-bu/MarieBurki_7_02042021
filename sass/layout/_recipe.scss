@@ -2,6 +2,7 @@
     display: flex;
     flex-wrap: wrap;
     gap : 50px 5%;
+    margin-top: 170px;
 }
 
 .recipe {
@@ -54,5 +55,8 @@
         display: -webkit-box;
         -webkit-line-clamp: 7;
         -webkit-box-orient: vertical;
+    }
+    &-hidden {
+        display: none;
     }
 }

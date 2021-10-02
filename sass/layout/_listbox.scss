@@ -1,6 +1,11 @@
-.search-lists {
-    display: flex;
-    gap: 0 20px;
+.search {
+    &-narrow {
+        position: absolute;
+    }
+    &-lists {
+        display: flex;
+        gap: 0 20px;
+    }
 }
 
 .list {
@@ -58,7 +63,6 @@
     .listed {
         display: flex;
         flex-wrap: wrap;
-        justify-content: space-between;
         gap: 5px 70px;
         max-width: 667px;
         padding: 25px 0 15px 0;

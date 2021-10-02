@@ -77,10 +77,14 @@ function appendDataRecipes(array) {
             unitDisplay(ingredient);
             recipeIngredients[i].innerHTML +=
                 `<span class="item-ingredient">`+ingredient.ingredient+`:</span>
-                <span class="item-quantity"> `+ingredient.quantity+ingredient.unit+`</span></br>`
+                <span class="item-quantity"> `+ingredient.quantity+ingredient.unit+`</span>`
         })
     }
 };
+<<<<<<< HEAD:interface.js
+=======
+
+>>>>>>> sortTestOne:functions.js
 appendDataRecipes(recipes);
 
 // create set of data for listboxes
@@ -88,6 +92,12 @@ let ingSet = new Set;
 let appSet = new Set;
 let ustSet = new Set;
 
+<<<<<<< HEAD:interface.js
+=======
+// create array for tag creation on click (below)
+let listedItems = [];
+
+>>>>>>> sortTestOne:functions.js
 // populate listboxes
 function appendDataLists(array, set, container) {
     container.innerHTML = "";
@@ -100,11 +110,26 @@ function appendDataLists(array, set, container) {
             ustSet.add(ust)
         }
         appSet.add(recipe.appliance)
+<<<<<<< HEAD:interface.js
     })
 
     set.forEach((element)=>{ 
         container.innerHTML += `<li class="listed-item">`+element+`</li>`;
     })
+=======
+    });
+
+    set.forEach((element)=>{ 
+        const item = document.createElement("li");
+        item.classList.add("listed-item");
+        item.innerHTML= element;
+        container.appendChild(item);
+        item.addEventListener("click", (el)=> {
+            createTag(el);
+            filterByTag(el);
+        });   
+    });
+>>>>>>> sortTestOne:functions.js
 };
 
 appendDataLists(recipes, ingSet, listIngredient);
@@ -123,21 +148,25 @@ function closeListbox(list, button) {
 }
 
 // create tag
+<<<<<<< HEAD:interface.js
 let listedItems = [];
 let closeBtns = [];
 
 document.querySelectorAll(".listed-item").forEach(item=>listedItems.push(item));
+=======
+>>>>>>> sortTestOne:functions.js
 
-function AddRemoveTag(e) {
-    const clickedElement = e.target.innerHTML ;
-    const clickedElementBg = window.getComputedStyle(e.target.parentNode).backgroundColor;
+function createTag(el) {
+    const clickedElement = el.target.innerHTML ;
+    const clickedElementBg = window.getComputedStyle(el.target.parentNode).backgroundColor;
     // create div
     const tag = document.createElement("li");
-    tag.classList.add("tag");
+    tag.classList.add("tag", "active-tag");
     tag.style.backgroundColor= clickedElementBg;
     tag.innerHTML= clickedElement+`<i class="far fa-times-circle"></i>`;
     searchTags.appendChild(tag);
     // add close tag onclick
+<<<<<<< HEAD:interface.js
     closeBtns.push(tag);
     closeBtns.forEach((closeBtn)=>{
         closeBtn.addEventListener("click", (el)=>{
@@ -151,3 +180,11 @@ listedItems.forEach((item)=>{
         AddRemoveTag(e)
     })
 })
+=======
+    let closeBtn = tag.querySelector("i");
+    closeBtn.addEventListener("click", (el)=> {
+        closeBtn.parentNode.classList.remove("active-tag");
+        filterOnClosedTag(el);
+    });
+};
+>>>>>>> sortTestOne:functions.js
