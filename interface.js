@@ -63,7 +63,7 @@ function appendDataRecipes(array) {
                     <div class="recipe-time"><i class="far fa-clock"></i> `+array[i].time+` min</div>
                 </div>
                 <div class="recipe-details">
-                    <p class="recipe-ingredients"></p>
+                    <ul class="recipe-ingredients"></ul>
                     <p class="recipe-directions">`+array[i].description+`</p>
                     <p class="recipe-hidden">`+array[i].appliance+`</p>
                     <p class="recipe-hidden">`+array[i].ustensils+`</p>
@@ -76,8 +76,8 @@ function appendDataRecipes(array) {
         Array.from(array[i].ingredients).forEach((ingredient)=>{
             unitDisplay(ingredient);
             recipeIngredients[i].innerHTML +=
-                `<span class="item-ingredient">`+ingredient.ingredient+`:</span>
-                <span class="item-quantity"> `+ingredient.quantity+ingredient.unit+`</span></br>`
+                `<li><span class="item-ingredient">`+ingredient.ingredient+`:</span>
+                <span class="item-quantity"> `+ingredient.quantity+ingredient.unit+`</span></li>`
         })
     }
 };
