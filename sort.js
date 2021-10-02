@@ -119,3 +119,52 @@ ListboxSearchInputs.forEach((element) => {
         }
     })
 });
+
+// 4) Filter by tag (addEventListeners added on tag creation -> interface.js)
+
+// When a tag is added
+
+function filterByTag(el) {
+    let itemContent = el.target.innerHTML.toLowerCase();
+    filterRecipes(itemContent);
+    filterListboxes();
+    };
+    
+// When a tag is removed
+    
+function filterOnClosedTag(el) {
+    let activeTags = document.querySelectorAll(".active-tag");
+    // if no entry was made in main search bar
+    if (recipesFilteredBySearchbar.length === 0) {
+        // and if there are some active tag, filter all recipes with remaining tag(s)
+        if (activeTags.length > 0) {
+        recipesToFilter = recipes;
+        activeTags.forEach((tag)=> {
+        filterRecipes(tag.innerText.toLocaleLowerCase());
+        filterListboxes()
+        });
+        // but if no active tag, repopulate DOM with all recipes
+        } else {
+        appendDataRecipes(recipes);
+        appendDataLists(recipes, ingSet, listIngredient);
+        appendDataLists(recipes, appSet, listAppareil);
+        appendDataLists(recipes, ustSet, listUstensile);
+        }
+    // if there has been an entry search on main search bar
+    } else if (recipesFilteredBySearchbar.length > 0) {
+        // and if there are some active tag, filter the recipes filtered by search bar with remaining tag(s)
+        if (activeTags.length > 0) {
+        recipesToFilter = recipesFilteredBySearchbar;
+        activeTags.forEach((tag)=> {
+        filterRecipes(tag.innerText.toLowerCase());
+        filterListboxes()
+        });
+        // but if no active tag, repopulate DOM with recipes filtered by search bar
+        } else {
+        appendDataRecipes(recipesFilteredBySearchbar);
+        appendDataLists(recipesFilteredBySearchbar, ingSet, listIngredient);
+        appendDataLists(recipesFilteredBySearchbar, appSet, listAppareil);
+        appendDataLists(recipesFilteredBySearchbar, ustSet, listUstensile);
+        }
+    }
+};

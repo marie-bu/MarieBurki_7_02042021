@@ -81,12 +81,16 @@ function appendDataRecipes(array) {
         })
     }
 };
+
 appendDataRecipes(recipes);
 
 // create set of data for listboxes
 let ingSet = new Set;
 let appSet = new Set;
 let ustSet = new Set;
+
+// create array for tag creation on click (below)
+let listedItems = [];
 
 // populate listboxes
 function appendDataLists(array, set, container) {
@@ -100,11 +104,18 @@ function appendDataLists(array, set, container) {
             ustSet.add(ust)
         }
         appSet.add(recipe.appliance)
-    })
+    });
 
     set.forEach((element)=>{ 
-        container.innerHTML += `<li class="listed-item">`+element+`</li>`;
-    })
+        const item = document.createElement("li");
+        item.classList.add("listed-item");
+        item.innerHTML= element;
+        container.appendChild(item);
+        item.addEventListener("click", (el)=> {
+            createTag(el);
+            filterByTag(el);
+        });   
+    });
 };
 
 appendDataLists(recipes, ingSet, listIngredient);
@@ -123,31 +134,20 @@ function closeListbox(list, button) {
 }
 
 // create tag
-let listedItems = [];
-let closeBtns = [];
 
-document.querySelectorAll(".listed-item").forEach(item=>listedItems.push(item));
-
-function AddRemoveTag(e) {
-    const clickedElement = e.target.innerHTML ;
-    const clickedElementBg = window.getComputedStyle(e.target.parentNode).backgroundColor;
+function createTag(el) {
+    const clickedElement = el.target.innerHTML ;
+    const clickedElementBg = window.getComputedStyle(el.target.parentNode).backgroundColor;
     // create div
     const tag = document.createElement("li");
-    tag.classList.add("tag");
+    tag.classList.add("tag", "active-tag");
     tag.style.backgroundColor= clickedElementBg;
     tag.innerHTML= clickedElement+`<i class="far fa-times-circle"></i>`;
     searchTags.appendChild(tag);
     // add close tag onclick
-    closeBtns.push(tag);
-    closeBtns.forEach((closeBtn)=>{
-        closeBtn.addEventListener("click", (el)=>{
-        el.target.parentNode.style.display = "none";
-        })
+    let closeBtn = tag.querySelector("i");
+    closeBtn.addEventListener("click", (el)=> {
+        closeBtn.parentNode.classList.remove("active-tag");
+        filterOnClosedTag(el);
     });
 };
-
-listedItems.forEach((item)=>{
-    item.addEventListener("click", (e)=>{
-        AddRemoveTag(e)
-    })
-})
